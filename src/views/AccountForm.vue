@@ -24,7 +24,7 @@
     </v-row>
     <v-row v-for="(account, index) in accounts" :key="index">
       <v-col cols="3">
-        <v-text-field v-model="labelStrings[index]" density="compact" hide-details="auto" :rules="inputRules"
+        <v-text-field v-model="labelStrings[index]" density="compact" hide-details="auto" :rules="labelRules"
           @blur="updateLabels(index)" />
       </v-col>
       <v-col cols="3">
@@ -32,13 +32,13 @@
           hide-details="auto" @update:model-value="handleTypeChange(index)" />
       </v-col>
       <v-col :cols="account.type === 'LDAP' ? 3 : 2">
-        <v-text-field v-model="account.login" density="compact" hide-details="auto" :rules="inputRules" />
+        <v-text-field v-model="account.login" density="compact" hide-details="auto" :rules="loginRules" />
       </v-col>
       <v-col :cols="account.type === 'LDAP' ? 1 : 2">
         <v-text-field v-if="account.type === 'Local'" v-model="account.password"
           :type="passwordVisible[index] ? 'text' : 'password'" density="compact" placeholder="Enter your password"
           variant="outlined" :append-inner-icon="passwordVisible[index] ? 'mdi-eye' : 'mdi-eye-off'"
-          @click:append-inner="togglePasswordVisibility(index)" :rules="inputRules" />
+          @click:append-inner="togglePasswordVisibility(index)" :rules="passwordRules" />
       </v-col cols="3">
       <v-col cols="auto">
         <v-btn @click="removeAccount(index)">
@@ -67,10 +67,19 @@ const typeItems = [
   { value: 'LDAP', title: 'LDAP' },
 ];
 
-const inputRules = [
-  (value: string) => ((value != null && value === 'string') ? value.trim().length > 0 : String(value).trim().length > 0) || 'Обязательное поле',
-  (value: string) => value.length <= 100 || 'Макс. 100 символов',
-]
+const labelRules = [
+  (v: string) => v.length <= 50 || 'Макс. 50 символов',
+];
+
+const loginRules = [
+  (v: string) => !!v || 'Логин обязателен',
+  (v: string) => v.length <= 100 || 'Макс. 100 символов',
+];
+
+const passwordRules = [
+  (v: string) => !!v || 'Пароль обязателен',
+  (v: string) => v.length <= 100 || 'Макс. 100 символов',
+];
 
 
 const addAccount = () => {
@@ -102,5 +111,3 @@ const togglePasswordVisibility = (index: number) => {
   passwordVisible.value[index] = !passwordVisible.value[index];
 }
 </script>
-
-<style></style>

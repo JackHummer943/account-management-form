@@ -10,3 +10,45 @@ body {
   line-height: 1.4;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
+
+.v-btn:hover>.v-btn__overlay,
+.v-btn:active>.v-btn__overlay,
+.v-btn:focus>.v-btn__overlay {
+  background-color: rgb(161, 206, 255, 0.2);
+  opacity: 1 !important;
+}
+
+.v-btn:hover>span.v-btn__content,
+.v-btn:active>span.v-btn__content,
+.v-btn:focus>span.v-btn__content {
+  color: white;
+}
+
+.v-btn:active::before,
+.v-btn:focus::before {
+  background-color: transparent;
+}
+
+.v-btn:active,
+.v-btn:focus {
+  outline: none;
+}
+
+.v-list-item--active,
+.v-list-item:hover {
+  background-color: #dff0fc;
+  color: #333333;
+}
+
+.v-list-item__overlay,
+.v-list-item__underlay {
+  display: none;
+}
+
+.v-btn--variant-elevated {
+  box-shadow: none !important;
+}
+
+.v-field--variant-filled .v-field__overlay {
+  background-color: #fff !important;
+}
