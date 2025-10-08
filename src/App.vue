@@ -1,6 +1,11 @@
+<template>
+  <AccountForm />
+</template>
+
 <script setup lang="ts">
+import AccountForm from './views/AccountForm.vue';
 </script>
 
-<template>
-  <h1>Test output after clean</h1>
-</template>
+<style lang="css" scoped>
+@import './assets/styles/common.css';
+</style>
