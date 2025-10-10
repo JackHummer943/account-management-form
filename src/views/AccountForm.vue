@@ -31,15 +31,15 @@
         <v-select v-model="account.type" :items="typeItems" item-title="title" item-value="value" density="compact"
           hide-details="auto" @update:model-value="handleTypeChange(index)" />
       </v-col>
-      <v-col :cols="account.type === 'LDAP' ? 3 : 2">
+      <v-col :cols="account.type === 'LDAP' ? 4 : 2">
         <v-text-field v-model="account.login" density="compact" hide-details="auto" :rules="loginRules" />
       </v-col>
-      <v-col :cols="account.type === 'LDAP' ? 1 : 2">
+      <v-col :cols="account.type === ('LDAP' as string) ? 1 : 2" v-if="account.type !== ('LDAP' as string)">
         <v-text-field v-if="account.type === 'Local'" v-model="account.password"
           :type="passwordVisible[index] ? 'text' : 'password'" density="compact" placeholder="Enter your password"
           variant="outlined" :append-inner-icon="passwordVisible[index] ? 'mdi-eye' : 'mdi-eye-off'"
           @click:append-inner="togglePasswordVisibility(index)" :rules="passwordRules" />
-      </v-col cols="3">
+      </v-col>
       <v-col cols="auto">
         <v-btn @click="removeAccount(index)">
           <v-icon>mdi-delete</v-icon>
