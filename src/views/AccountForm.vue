@@ -1,102 +1,175 @@
 <template>
   <v-container>
     <v-row>
-      <v-col>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <h2>Учетные записи</h2>
-          <v-btn @click="addAccount">
-            <v-icon icon="mdi-plus" />
-          </v-btn>
-        </div>
-      </v-col>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <h2>Учетные записи</h2>
+        <v-btn variant="outlined" @click="store.addAccount" class="button-plus">
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+      </div>
     </v-row>
-    <p style="background-color: rgb(161, 206, 255, 0.2);">
+
+    <div style="background:rgba(161,206,255,0.2);">
       <v-icon icon="mdi-help-circle-outline" size="large"
         v-tooltip="'Для указания нескольких меток для одной пары логин/пароль используйте разделитель ;'" />
-      Для указания нескольких меток для одной пары логин/пароль используйте разделитель ;
-    </p>
-    <v-row class="header">
-      <v-col cols="3">Метки</v-col>
-      <v-col cols="3">Тип записи</v-col>
-      <v-col cols="3">Логин</v-col>
-      <v-col cols="3">Пароль</v-col>
-      <v-col cols="auto"></v-col>
+      Для указания нескольких меток используйте разделитель ;
+    </div>
+
+    <v-row v-if="$vuetify.display.smAndUp" class="header">
+      <v-col cols="3" sm="2" md="2">Метки</v-col>
+      <v-col cols="3" sm="3" md="3">Тип записи</v-col>
+      <v-col cols="3" sm="3" md="3">Логин</v-col>
+      <v-col cols="3" md="3">Пароль</v-col>
+      <v-col col></v-col>
     </v-row>
-    <v-row v-for="(account, index) in accounts" :key="index">
-      <v-col cols="3">
-        <v-text-field v-model="labelStrings[index]" density="compact" hide-details="auto" :rules="[rules.label]"
-          @blur="updateLabels(index)" />
-      </v-col>
-      <v-col cols="3">
-        <v-select v-model="account.type" :items="typeItems" item-title="title" item-value="value" density="compact"
-          hide-details="auto" @update:model-value="handleTypeChange(index)" />
-      </v-col>
-      <v-col :cols="account.type === 'LDAP' ? 5 : 3">
-        <v-text-field v-model="account.login" density="compact" hide-details="auto"
-          :rules="[rules.required, rules.login]" />
-      </v-col>
-      <v-col :cols="account.type === ('LDAP' as string) ? 1 : 2" v-if="account.type !== ('LDAP' as string)">
-        <v-text-field v-if="account.type === 'Local'" v-model="account.password"
-          :type="passwordVisible[index] ? 'text' : 'password'" density="compact" variant="outlined"
-          :append-inner-icon="passwordVisible[index] ? 'mdi-eye' : 'mdi-eye-off'"
-          @click:append-inner="togglePasswordVisibility(index)" :rules="[rules.required, rules.password]" />
-      </v-col>
-      <v-col cols="auto">
-        <v-btn @click="removeAccount(index)">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
-      </v-col>
-    </v-row>
+
+    <div v-for="(account, index) in store.accounts" :key="index">
+
+      <div v-if="$vuetify.display.xs">
+        <div class="pa-4">
+          <div class="d-flex justify-space-between align-center mb-3">
+            <span class="text-overline">Учётная запись #{{ index + 1 }}</span>
+            <v-btn @click="store.removeAccount(index)">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </div>
+
+          <div class="mb-3">
+            <div class="text-overline mb-1">Метки</div>
+            <v-text-field v-model="labelStrings[index]" :rules="[rules.label]" @blur="updateLabels(index)" />
+          </div>
+
+          <div class="mb-3">
+            <div class="text-overline mb-1">Тип записи</div>
+            <v-select v-model="account.type" :items="typeItems" item-title="title" item-value="value"
+              @update:model-value="handleTypeChange(index)" />
+          </div>
+
+          <div class="mb-3">
+            <div class="text-overline mb-1">Логин</div>
+            <v-text-field v-model="account.login" :rules="[rules.required, rules.login]" @blur="updateLogin(index)" />
+          </div>
+
+          <div v-if="account.type !== 'LDAP'" class="mb-3">
+            <div class="text-overline mb-1">Пароль</div>
+            <v-text-field v-model="account.password" :type="passwordVisible[index] ? 'text' : 'password'"
+              :append-inner-icon="passwordVisible[index] ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append-inner="togglePasswordVisibility(index)" :rules="[rules.required, rules.password]"
+              @blur="updatePassword(index)" />
+          </div>
+        </div>
+      </div>
+
+      <v-row v-else class="align-center">
+        <v-col cols="3" sm="2" md="2" lg="2" xl="2">
+          <v-text-field v-model="labelStrings[index]" :rules="[rules.label]" @blur="updateLabels(index)" />
+        </v-col>
+
+        <v-col cols="3" sm="3" md="3" lg="3" xl="3">
+          <v-select v-model="account.type" :items="typeItems" item-title="title" item-value="value"
+            @update:model-value="handleTypeChange(index)" />
+        </v-col>
+
+        <v-col :cols="account.type === 'LDAP' ? 5 : 3" :sm="account.type === 'LDAP' ? 6 : 3"
+          :md="account.type === 'LDAP' ? 6 : 3" :lg="account.type === 'LDAP' ? 6 : 3"
+          :xl="account.type === 'LDAP' ? 6 : 3">
+          <v-text-field v-model="account.login" :rules="[rules.required, rules.login]" @blur="updateLogin(index)" />
+        </v-col>
+
+        <v-col v-if="account.type !== 'LDAP'" :cols="account.type === 'LDAP' ? 1 : 2"
+          :sm="account.type === 'LDAP' ? 1 : 3" :md="account.type === 'LDAP' ? 1 : 3" lg="3" xl="3">
+          <v-text-field v-model="account.password" :type="passwordVisible[index] ? 'text' : 'password'"
+            variant="outlined" :append-inner-icon="passwordVisible[index] ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append-inner="togglePasswordVisibility(index)" :rules="[rules.required, rules.password]"
+            @blur="updatePassword(index)" />
+        </v-col>
+
+        <v-col col sm="1" md="1" lg="1" xl="auto">
+          <v-btn size="small" @click="store.removeAccount(index)" class="button-delete">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </div>
   </v-container>
 </template>
+
 <script setup lang="ts">
-
-import { useAccountsStore } from '../stores/accountsStore';
-import { computed, ref, watch } from 'vue';
-
-import rules from '../model/inputRules';
+import { useAccountsStore } from '@/stores/accountsStore';
+import { ref, watch } from 'vue';
+import rules from '@/model/inputRules';
 
 const store = useAccountsStore();
 
-const accounts = computed(() => store.accounts);
-const labelStrings = ref<string[]>(accounts.value.map(acc => acc.labels.map(l => l.text).join(';')));
-const passwordVisible = ref<boolean[]>(accounts.value.map((visible) => !visible));
+const labelStrings = ref<string[]>([]);
+const passwordVisible = ref<boolean[]>([]);
 
-watch(accounts, () => {
-  labelStrings.value = accounts.value.map(acc => acc.labels.map(l => l.text).join(';'));
-}, { deep: true });
+watch(
+  () => store.accounts,
+  (accounts) => {
+    labelStrings.value = accounts.map(acc =>
+      acc.labels.map(l => l.text).join(';')
+    );
+    passwordVisible.value = accounts.map(() => false);
+  },
+  { immediate: true }
+);
 
 const typeItems = [
   { value: 'Local', title: 'Локальная' },
   { value: 'LDAP', title: 'LDAP' },
 ];
 
-const addAccount = () => {
-  store.addAccount();
-  labelStrings.value.push('');
-}
-
-const removeAccount = (index: number) => {
-  store.removeAccount(index);
-  labelStrings.value.splice(index, 1);
-}
-
 const updateLabels = (index: number) => {
-  const labels = labelStrings.value[index]!
+  const value = (labelStrings.value[index] || '').trim();
+  if (value.length > 50) return;
+
+  const labels = value
     .split(';')
-    .map(text => text.trim())
-    .filter(text => text !== '')
+    .map(t => t.trim())
+    .filter(Boolean)
     .map(text => ({ text }));
+
   store.updateAccount(index, { labels });
-}
+};
+
+const updateLogin = (index: number) => {
+  const login = store.accounts[index]!.login?.trim();
+  if (!login || login.length > 100) return;
+  store.updateAccount(index, { login });
+};
+
+const updatePassword = (index: number) => {
+  const password = store.accounts[index]!.password;
+  if (store.accounts[index]!.type === 'Local' && (!password || password.length > 100)) {
+    return;
+  }
+  store.updateAccount(index, { password });
+};
 
 const handleTypeChange = (index: number) => {
-  if (accounts.value[index]!.type === 'LDAP') {
+  if (store.accounts[index]!.type === 'LDAP') {
     store.updateAccount(index, { password: null });
   }
-}
+};
 
 const togglePasswordVisibility = (index: number) => {
   passwordVisible.value[index] = !passwordVisible.value[index];
-}
+};
 </script>
+
+<style>
+.v-row {
+  margin: 0 !important;
+}
+
+.button-plus {
+  height: 60px !important;
+  border-color: rgba(161, 206, 255, 1) !important;
+  border-radius: 3px;
+}
+
+.button-delete {
+  height: calc(var(--v-btn-height) + 20px) !important;
+}
+</style>
